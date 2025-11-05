@@ -38,11 +38,12 @@ class RosbagIO {
     explicit RosbagIO(std::string bag_file, DatasetType dataset_type = DatasetType::NCLT)
         : bag_file_(std::move(bag_file)) {
         /// handle ctrl-c
-        signal(SIGINT, lightning::debug::SigHandle);
-    }
+        signal(SIGINT, lightning::debug::SigHandle);    // 处理 ctrl-c 信号 
+    }   // explicit 是必要的，否则会有隐式转换的问题
+        // std::move() 的使用方法：将一个对象的所有权转移给另一个对象，避免不必要的拷贝
 
-    using MsgType = std::shared_ptr<rosbag2_storage::SerializedBagMessage>;
-    using MessageProcessFunction = std::function<bool(const MsgType &m)>;
+    using MsgType = std::shared_ptr<rosbag2_storage::SerializedBagMessage>;     // 定义消息类型，rosbag2_storage::SerializedBagMessage 是ROS2中序列化消息的存储类型
+    using MessageProcessFunction = std::function<bool(const MsgType &m)>;   // 定义消息处理函数类型，接受一个消息指针，返回bool值
 
     /// 一些方便直接使用的topics, messages
     using Scan2DHandle = std::function<bool(sensor_msgs::msg::LaserScan::SharedPtr)>;
@@ -67,7 +68,7 @@ class RosbagIO {
 
     /// point cloud 2 处理
     RosbagIO &AddPointCloud2Handle(const std::string &topic_name, PointCloud2Handle f) {
-        return AddHandle(topic_name, [f, this](const MsgType &m) -> bool {
+        return AddHandle(topic_name, [f, this](const MsgType &m) -> bool {  // m 是序列化的消息, 需要反序列化;ROS bag 文件（.db3）本身就是一个数据库，它存储的就是序列化后的 ROS 消息。
             auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             rclcpp::SerializedMessage data(*m->serialized_data);
             seri_cloud2_.deserialize_message(&data, msg.get());
@@ -122,7 +123,7 @@ class RosbagIO {
     std::map<std::string, MessageProcessFunction> process_func_;
 
     /// 序列化
-    rclcpp::Serialization<nav_msgs::msg::Odometry> seri_odom_;
+    rclcpp::Serialization<nav_msgs::msg::Odometry> seri_odom_;  //类似于ROS1中的message_filters::Subscriber
     rclcpp::Serialization<sensor_msgs::msg::Imu> seri_imu_;
     rclcpp::Serialization<sensor_msgs::msg::PointCloud2> seri_cloud2_;
     rclcpp::Serialization<livox_ros_driver2::msg::CustomMsg> seri_livox_;

@@ -12,7 +12,7 @@
 
 namespace lightning::ui {
 
-class PangolinWindowImpl;
+class PangolinWindowImpl;   // 前向声明PangolinWindowImpl类，以便在PangolinWindow类中使用指向它的智能指针。
 
 /**
  * @note 此类本身不直接涉及任何opengl和pangolin操作，应当放到PangolinWindowImpl中

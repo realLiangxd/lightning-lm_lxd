@@ -43,7 +43,7 @@ void UiCloud::SetCloud(CloudPtr cloud, const SE3& pose) {
         // 根据高度映射颜色
         color_data_height_[id] = IntensityToRgbPCL(pt.z * 10);
         color_data_intensity_[id] =
-            Vec4f(pt.intensity / 255.0 * 3.0, pt.intensity / 255.0 * 3.0, pt.intensity / 255.0 * 3.0, 1.0);
+            Vec4f(pt.intensity / 255.0 * 3.0, pt.intensity / 255.0 * 3.0, pt.intensity / 255.0 * 3.0, 1.0); // 直接用intensity做灰度
     }
 }
 
@@ -52,7 +52,7 @@ void UiCloud::Render() {
 
     glBegin(GL_POINTS);
 
-    for (int i = 0; i < xyz_data_.size(); ++i) {
+    for (int i = 0; i < xyz_data_.size(); ++i) {    // 遍历所有点，设置颜色
         if (use_color_ == UseColor::PCL_COLOR) {
             glColor4f(color_data_pcl_[i][0], color_data_pcl_[i][1], color_data_pcl_[i][2], ui::opacity);
         } else if (use_color_ == UseColor::INTENSITY_COLOR) {
@@ -66,13 +66,13 @@ void UiCloud::Render() {
             glColor4f(custom_color_[0], custom_color_[1], custom_color_[2], ui::opacity);
         }
 
-        glVertex3f(xyz_data_[i][0], xyz_data_[i][1], xyz_data_[i][2]);
+        glVertex3f(xyz_data_[i][0], xyz_data_[i][1], xyz_data_[i][2]);  // 设置点的位置
     }
     glEnd();
 }
 
 void UiCloud::BuildIntensityTable() {
-    intensity_color_table_pcl_.reserve(255 * 3);
+    intensity_color_table_pcl_.reserve(256 * 3);    // 预分配空间   修复点1,由255改为256
     // 接受rgb三个值，将它们归一化到范围 [0, 1]，同时设置 alpha 通道为0.2。
     auto make_color = [](int r, int g, int b) -> Vec4f { return Vec4f(r / 255.0f, g / 255.0f, b / 255.0f, 0.2f); };
 

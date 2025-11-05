@@ -25,7 +25,7 @@ extern bool flg_next;     // 暂停后，放行单个消息(单步调试)
 extern float play_speed;  // 播放速度
 
 inline void SigHandle(int sig) {
-    debug::flg_exit = true;
+    debug::flg_exit = true; // 设置退出标志，ctrl-c中断
     rclcpp::shutdown();
 }
 
